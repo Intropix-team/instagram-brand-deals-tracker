@@ -106,6 +106,7 @@ UNNAMED_PHOTO = {
     "like_count": None,
     "view_count": None,
     "share_count": None,
+    "engagement_rate": None,
     "counts_hidden": True,
 }
 

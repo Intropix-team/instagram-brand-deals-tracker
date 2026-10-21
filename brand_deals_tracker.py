@@ -65,6 +65,12 @@ def deal_brands(post: dict) -> list[str]:
     return list(dict.fromkeys(sponsors)) or [UNNAMED]
 
 
+def post_key(post: dict):
+    """Dedup identity: post_pk, else permalink, else the item itself, so two
+    items with neither are never merged into one."""
+    return post.get("post_pk") or post.get("permalink") or id(post)
+
+
 def deal_rows(posts: list[dict]) -> list[dict]:
     """One row per (sponsored post, brand), deduplicated on post_pk."""
     rows = []
@@ -72,7 +78,7 @@ def deal_rows(posts: list[dict]) -> list[dict]:
     for post in posts:
         if not is_sponsored(post):
             continue
-        key = post.get("post_pk") or post.get("permalink")
+        key = post_key(post)
         if key in seen:
             continue
         seen.add(key)
@@ -140,7 +146,7 @@ def _fmt(value) -> str:
 
 def sponsored_post_count(posts: list[dict]) -> int:
     """Distinct sponsored posts (a post with two sponsors counts once)."""
-    return len({p.get("post_pk") or p.get("permalink") for p in posts if is_sponsored(p)})
+    return len({post_key(p) for p in posts if is_sponsored(p)})
 
 
 def render_report(summary: list[dict], posts: list[dict], creators: list[str]) -> str:
